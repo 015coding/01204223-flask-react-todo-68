@@ -74,6 +74,24 @@ function App() {
       console.error("Error deleting todo:", error);
     }
   }
+  async function addNewComment(todoId) {
+    try {
+      const url = `${TODOLIST_API_URL}${todoId}/comments/`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 'message': newComments[todoId] || "" }),
+      });
+      if (response.ok) {
+        setNewComments({ ...newComments, [todoId]: "" });
+        await fetchTodoList();
+      }
+    } catch (error) {
+      console.error("Error adding new comment:", error);
+    }
+  }
 
   return (
     <>
@@ -104,7 +122,7 @@ function App() {
                   setNewComments({ ...newComments, [todo.id]: value });
                 }}
               />
-              <button onClick={() => {alert(newComments[todo.id])}}>Add Comment</button>
+              <button onClick={() => {addNewComment(todo.id)}}>Add Comment</button>
             </div>
           </li>
         ))}
