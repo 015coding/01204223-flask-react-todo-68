@@ -4,16 +4,19 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy.orm import Mapped, mapped_column
+from flask_migrate import Migrate 
 
 app = Flask(__name__)
 CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'
+ 
 
 class Base(DeclarativeBase):
     pass
 db = SQLAlchemy(app, model_class=Base)
+migrate = Migrate(app, db)     
 
 class TodoItem(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -31,14 +34,15 @@ def new_todo(data):
     return TodoItem(title=data['title'], done=data.get('done', False))
 
 
-with app.app_context():
-    db.create_all()
-    INITIAL_TODOS = [
+# with app.app_context():
+#     db.create_all()
+
+INITIAL_TODOS = [
     TodoItem(title='Learn Flask'),
     TodoItem(title='Build a Flask App'),
     ]
 
-    with app.app_context():
+with app.app_context():
         if TodoItem.query.count() == 0:
              for item in INITIAL_TODOS:
                  db.session.add(item)
@@ -60,20 +64,6 @@ def get_todos():
     todos = TodoItem.query.all()
     return jsonify([todo.to_dict() for todo in todos])
 
-# def new_todo(data):
-#     if len(todo_list) == 0:
-#         id = 1
-#     else:
-#         id = 1 + max([todo['id'] for todo in todo_list])
-
-#     if 'title' not in data:
-#         return None
-    
-#     return {
-#         "id": id,
-#         "title": data['title'],
-#         "done": getattr(data, 'done', False),
-#     }
 
 @app.route('/api/todos/', methods=['POST'])
 def add_todo():
@@ -88,14 +78,6 @@ def add_todo():
         return (jsonify({'error': 'Invalid todo data'}), 400) 
     
 
-# @app.route('/api/todos/<int:id>/toggle/', methods=['PATCH'])
-# def toggle_todo(id):
-#     todos = [todo for todo in todo_list if todo['id'] == id]
-#     if not todos:
-#         return (jsonify({'error': 'Todo not found'}), 404)
-#     todo = todos[0]
-#     todo['done'] = not todo['done']
-#     return jsonify(todo)
 
 @app.route('/api/todos/<int:id>/toggle/', methods=['PATCH'])
 def toggle_todo(id):
@@ -105,14 +87,6 @@ def toggle_todo(id):
     return jsonify(todo.to_dict())
 
 
-# @app.route('/api/todos/<int:id>/', methods=['DELETE'])
-# def delete_todo(id):
-#     global todo_list
-#     todos = [todo for todo in todo_list if todo['id'] == id]
-#     if not todos:
-#         return (jsonify({'error': 'Todo not found'}), 404)
-#     todo_list = [todo for todo in todo_list if todo['id'] != id]
-#     return jsonify({'message': 'Todo deleted successfully'})
 @app.route('/api/todos/<int:id>/', methods=['DELETE'])
 def delete_todo(id):
     todo = TodoItem.query.get_or_404(id)
