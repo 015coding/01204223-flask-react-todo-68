@@ -25,5 +25,25 @@ describe('App', () => {
     expect(screen.getByText('Sample Todo')).toBeInTheDocument();
     expect(screen.getByText('First comment')).toBeInTheDocument();
     expect(screen.getByText('Another comment')).toBeInTheDocument();
+    expect(screen.getByText(/2/)).toBeInTheDocument();
   });
+    
+  it('renders with no comments correctly', () => {
+    // ... ละตอนต้นไว้
+    render(<App init_todo={[baseTodo]}/>);
+    expect(screen.getByText('No comments')).toBeInTheDocument();
+  });
+    it('does not show no comments message when it has a comment', () => {
+    const todoWithComment = {
+      ...baseTodo,
+      comments: [
+        {id: 1, message: 'First comment'},
+      ]
+    };
+    render(
+      <App todo={todoWithComment} />
+    );
+    expect(screen.queryByText('No comments')).not.toBeInTheDocument();
+  });
+
 });
