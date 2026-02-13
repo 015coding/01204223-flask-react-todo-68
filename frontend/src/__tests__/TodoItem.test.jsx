@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { expect } from 'vitest'
-import App from '../App.jsx'
+import userEvent from '@testing-library/user-event'
+import TodoItem from '../TodoItem';
 
 const baseTodo = {             
   id: 1,
@@ -10,17 +11,17 @@ const baseTodo = {
 };
 
 
-describe('App', () => {
+describe('TodoItem', () => {
   it('renders with no comments correctly', () => {
-    const todoWithComment = [{
+    const todoWithComment = {
       ...baseTodo,
       comments: [
         {id: 1, message: 'First comment'},
         {id: 2, message: 'Another comment'},
       ]
-    }];
+    };
     render(
-        <App init_todo={todoWithComment}/>
+        <TodoItem todo={todoWithComment}/>
     );
     expect(screen.getByText('Sample Todo')).toBeInTheDocument();
     expect(screen.getByText('First comment')).toBeInTheDocument();
@@ -30,7 +31,7 @@ describe('App', () => {
     
   it('renders with no comments correctly', () => {
     // ... ละตอนต้นไว้
-    render(<App init_todo={[baseTodo]}/>);
+    render(<TodoItem todo={baseTodo}/>);
     expect(screen.getByText('No comments')).toBeInTheDocument();
   });
     it('does not show no comments message when it has a comment', () => {
@@ -41,9 +42,20 @@ describe('App', () => {
       ]
     };
     render(
-      <App todo={todoWithComment} />
+      <TodoItem todo={todoWithComment} />
     );
     expect(screen.queryByText('No comments')).not.toBeInTheDocument();
+  });
+  it('makes callback to toggleDone when Toggle button is clicked', () => {
+    const onToggleDone = vi.fn();
+    render(
+      <TodoItem 
+       todo={baseTodo} 
+       toggleDone={onToggleDone} />
+    );
+    const button = screen.getByRole('button', { name: /toggle/i });
+    button.click();
+    expect(onToggleDone).toHaveBeenCalledWith(baseTodo.id);
   });
 
 });
