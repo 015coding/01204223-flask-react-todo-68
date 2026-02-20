@@ -9,8 +9,9 @@ from flask_migrate import Migrate
 # from sqlalchemy import Integer, String, ForeignKey                            # เพิ่ม import Foreignkey
 # from sqlalchemy.orm import Mapped, mapped_column, relationship        
 from models import TodoItem, Comment, db      # เพิ่ม import relatiohship
-
-
+from flask_bcrypt import generate_password_hash, check_password_hash
+import click
+from models import User
 
 app = Flask(__name__)
 CORS(app)
@@ -103,3 +104,21 @@ def add_comment(todo_id):
     db.session.commit()
  
     return jsonify(comment.to_dict())
+#------------------------------------------------------#
+@app.cli.command("create-user")
+@click.argument("username")
+@click.argument("full_name")
+@click.argument("password")
+def create_user(username, full_name, password):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        click.echo("User already exists.")
+        return
+    user = User(username=username, full_name=full_name)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    click.echo(f"User {username} created successfully.")
+
+
+
