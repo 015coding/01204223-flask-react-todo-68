@@ -62,6 +62,7 @@ def new_todo(data):
 
 
 @app.route('/api/todos/', methods=['GET'])
+@jwt_required()
 def get_todos():
     todos = TodoItem.query.all()
     return jsonify([todo.to_dict() for todo in todos])
@@ -143,9 +144,6 @@ def login():
     access_token = create_access_token(identity=user.username)
     return jsonify(access_token=access_token)
 
-@app.route('/api/todos/', methods=['GET'])
-@jwt_required()
-def get_todos():
-    todos = TodoItem.query.all()
-    return jsonify([todo.to_dict() for todo in todos])
+if __name__ == '__main__':
+    app.run(debug=True)
 
