@@ -12,9 +12,6 @@ def test_check_incorrect_password():
     user.set_password('testpassword')
     assert user.check_password('wrongpassword') == False
 
-def test_empty_todoitem():
-    assert TodoItem.query.count() == 0
-
 def test_empty_todoitem(app_context):
     assert TodoItem.query.count() == 0
 
