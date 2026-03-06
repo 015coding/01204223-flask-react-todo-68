@@ -24,9 +24,15 @@ from flask_jwt_extended import JWTManager
 app = Flask(__name__)
 CORS(app)
 
+try:
+    from local_config import CONFIG_DB_URI, CONFIG_JWT_SECRET
+except :
+    CONFIG_DB_URI = 'sqlite:///todos.db'
+    CONFIG_JWT_SECRET = 'fdslkfjsdlkufewhjroiewurewrew'
+
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI' , 'sqlite:///todos.db') 
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'bobcat')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI' , CONFIG_DB_URI) 
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', CONFIG_JWT_SECRET)
 jwt = JWTManager(app)
 
 
