@@ -152,5 +152,19 @@ def login():
     access_token = create_access_token(identity=user.username)
     return jsonify(access_token=access_token)
 
+
+from flask import send_from_directory
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    static_dir = os.path.join(app.root_path, 'frontend-static')
+    # If a specific file is requested and exists, serve it
+    if path and os.path.isfile(os.path.join(static_dir, path)):
+        return send_from_directory('frontend-static', path)
+    # Otherwise serve the app entrypoint
+    return send_from_directory('frontend-static', 'index.html')
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
